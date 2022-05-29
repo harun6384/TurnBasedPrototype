@@ -5,11 +5,11 @@ using UnityEngine;
 [System.Serializable]
 public class HandleTurn 
 {
-    public string Attacker; // name of attacker
+    public string Attacker; // Saldýranýn ismi
     public string Type;
-    public GameObject AttackersGameObject; // who attacks
-    public GameObject AttackersTarget; // who is going to be attacked
+    public GameObject AttackersGameObject; // Kim saldýrýyor
+    public GameObject AttackersTarget; // Kim saldýrýya uðruyor
 
-    // which attack performed
+    // Hangi saldýrý gerçekleþtirildi
     public BaseAttack choosenAttack;
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class BaseEnemy : BaseClass
 {
+    // Baseclassdan özellikleri alýp ek olarak düþman tipi ve nadirliðini atayabiliriz -- mevcut oyunda tür ve nadirlik birþeyi deðiþtirmeyecek
     public enum Type
     {
         GRASS,

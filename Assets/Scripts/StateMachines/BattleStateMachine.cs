@@ -44,20 +44,35 @@ public class BattleStateMachine : MonoBehaviour
     public GameObject EnemySelectPanel;
     public GameObject MagicPanel;
 
-    // attacks of heroes
+    // Kahramanlarýn saldýrýlarý
     public Transform actionSpacer;
     public Transform magicSpacer;
     public GameObject actionButton;
     public GameObject magicButton;
     private List<GameObject> atkBtns = new List<GameObject>();
 
-    // enemy buttons
+    // Düþman butonlarý
     private List<GameObject> enemyBtns = new List<GameObject>();
+
+    // Spawn Pointler
+
+    public List<Transform> spawnPoints = new List<Transform>();
+
+    private void Awake()
+    {
+        for (int i = 0; i < GameManager.instance.enemyAmount; i++)
+        {
+            GameObject NewEnemy = Instantiate(GameManager.instance.enemyToBattle[i], spawnPoints[i].position, Quaternion.identity) as GameObject;
+            NewEnemy.name = NewEnemy.GetComponent<EnemyStateMachine>().enemy.theName + "_" + (i + 1);
+            NewEnemy.GetComponent<EnemyStateMachine>().enemy.theName = NewEnemy.name;
+            EnemiesInBattle.Add(NewEnemy);
+        }
+    }
 
     void Start()
     {
         battleStates = PerformAction.WAIT;
-        EnemiesInBattle.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
+        //EnemiesInBattle.AddRange(GameObject.FindGameObjectsWithTag("Enemy"));
         HerosInBattle.AddRange(GameObject.FindGameObjectsWithTag("Hero"));
         HeroInput = HeroGUI.ACTIVATE;
         AttackPanel.SetActive(false);
@@ -114,17 +129,17 @@ public class BattleStateMachine : MonoBehaviour
             case (PerformAction.CHECKALIVE):
                 if (HerosInBattle.Count <1 )
                 {
-                    // lose the battle
+                    // Savaþý kaybettiðinde
                     battleStates = PerformAction.LOSE;
                 }
                 else if(EnemiesInBattle.Count < 1)
                 {
-                    // win the battle
+                    // Savaþý kazandýðýnda
                     battleStates = PerformAction.WIN;
                 }
                 else
                 {
-                    // call function 
+                    // Fonksiyonu çaðýr
                     clearAttackPanel();
                     HeroInput = HeroGUI.ACTIVATE;
                 }
@@ -141,6 +156,10 @@ public class BattleStateMachine : MonoBehaviour
                     {
                         HerosInBattle[i].GetComponent<HeroStateMachine>().currentState = HeroStateMachine.TurnState.WAITING;
                     }
+
+                    GameManager.instance.LoadSceneAfterBattle();
+                    GameManager.instance.gameState = GameManager.GameStates.WORLD_STATE;
+                    GameManager.instance.enemyToBattle.Clear();
                 }
                 break;
         }
@@ -154,7 +173,7 @@ public class BattleStateMachine : MonoBehaviour
                     HeroChoise = new HandleTurn();
 
                     AttackPanel.SetActive(true);
-                    // populate action buttons
+                    // Aksiyon butonlarýný oluþtur
                     CreateAttackButtons();
 
                     HeroInput = HeroGUI.WAITING;
@@ -177,13 +196,13 @@ public class BattleStateMachine : MonoBehaviour
 
     public void EnemyButtons()
     {
-        // cleanup
+        // Temizlik
         foreach (GameObject enemyBtn in enemyBtns)
         {
             Destroy(enemyBtn);
         }
         enemyBtns.Clear();
-        // create buttons
+        // Butonlarý oluþturma
         foreach (GameObject enemy in EnemiesInBattle)
         {
             GameObject newButton = Instantiate(enemyButton) as GameObject;
@@ -201,7 +220,7 @@ public class BattleStateMachine : MonoBehaviour
         }
     }
 
-    public void Input1() // attack button
+    public void Input1() // Saldýrý butonu
     {
         HeroChoise.Attacker = HerosToManage[0].name;
         HeroChoise.AttackersGameObject = HerosToManage[0];
@@ -211,7 +230,7 @@ public class BattleStateMachine : MonoBehaviour
         EnemySelectPanel.SetActive(true);
     }
 
-    public void Input2(GameObject choosenEnemy) // enemy selection
+    public void Input2(GameObject choosenEnemy) // Düþman seçimi
     {
         HeroChoise.AttackersTarget = choosenEnemy;
         HeroInput = HeroGUI.DONE;
@@ -220,7 +239,7 @@ public class BattleStateMachine : MonoBehaviour
     void HeroInputDone()
     {
         PerformList.Add(HeroChoise);
-        // clean the attack panel
+        // Saldýrý panelini temizle
         clearAttackPanel();
 
         HerosToManage[0].transform.Find("Selector").gameObject.SetActive(false);
@@ -241,7 +260,7 @@ public class BattleStateMachine : MonoBehaviour
         atkBtns.Clear();
     }
 
-    // create action buttons
+    // Aksiyon butonlarý oluþtur
     void CreateAttackButtons()
     {
         GameObject AttackButton = Instantiate(actionButton) as GameObject;
@@ -277,7 +296,7 @@ public class BattleStateMachine : MonoBehaviour
         }
     }
 
-    public void Input4(BaseAttack choosenMagic) // choosen magic attack
+    public void Input4(BaseAttack choosenMagic) // Seçilen büyü saldýrýsý
     {
         HeroChoise.Attacker = HerosToManage[0].name;
         HeroChoise.AttackersGameObject = HerosToManage[0];

@@ -17,18 +17,18 @@ public class EnemyStateMachine : MonoBehaviour
     }
 
     public TurnState currentState;
-    // for the progress bar
+    // Ýlerleme çubuðu
     private float cur_cooldown = 0f;
     private float max_cooldown = 10f;
-    // this gameobject
+    // Bu nesneyle alakalý
     private Vector3 startposition;
     public GameObject Selector;
-    // timeforaction stuff
+    // timeforaction ile alakalý
     private bool actionStarted = false;
     public GameObject HeroToAttack;
     private float animSpeed = 10f;
 
-    // alive
+    // Hayatta
     private bool alive = true;
 
     void Start()
@@ -52,7 +52,7 @@ public class EnemyStateMachine : MonoBehaviour
                 currentState = TurnState.WAITING;
                 break;
             case (TurnState.WAITING):
-                // idle state
+                // idle 
                 break;
             case (TurnState.ACTION):
                 StartCoroutine(TimeForAction()); 
@@ -64,35 +64,38 @@ public class EnemyStateMachine : MonoBehaviour
                 }
                 else
                 {
-                    // change tag of enemy
+                    // Düþman tagýný deðiþtir
                     this.gameObject.tag = "DeadEnemy";
-                    // not attackable by heroes
+                    // Kahramanlar tarafýndan saldýrýlamaz durumda
                     BSM.EnemiesInBattle.Remove(this.gameObject);
-                    // disable the selector
+                    // Selektörü devre dýþý býrak
                     Selector.SetActive(false);
-                    // remove all inputs enemy attacks
+                    // Düþman saldýrýlarýndan tüm inputlarý çýkar
                     if (BSM.EnemiesInBattle.Count > 0)
                     {
                         for (int i = 0; i < BSM.PerformList.Count; i++)
                         {
-                            if (BSM.PerformList[i].AttackersGameObject == this.gameObject)
+                            if (i != 0)
                             {
-                                BSM.PerformList.Remove(BSM.PerformList[i]);
-                            }
-                            if (BSM.PerformList[i].AttackersTarget == this.gameObject)
-                            {
-                                BSM.PerformList[i].AttackersTarget = BSM.EnemiesInBattle[Random.Range(0, BSM.EnemiesInBattle.Count)];
-                            }
+                                if (BSM.PerformList[i].AttackersGameObject == this.gameObject)
+                                {
+                                    BSM.PerformList.Remove(BSM.PerformList[i]);
+                                }
+                                if (BSM.PerformList[i].AttackersTarget == this.gameObject)
+                                {
+                                    BSM.PerformList[i].AttackersTarget = BSM.EnemiesInBattle[Random.Range(0, BSM.EnemiesInBattle.Count)];
+                                }
+                            }  
                         }
                     }
                     
-                    // change color to gray / play dead animation
+                    // Karakterin rengini deðiþtir veya Ölme animasyonu oynat
                     this.gameObject.GetComponent<MeshRenderer>().material.color = new Color32(105, 105, 105, 255);
-                    // set alive false
+                    // Hayatta durumunu deðiþtir
                     alive = false;
-                    // reset enemy buttons
+                    // Düþman butonlarýný sýfýrla
                     BSM.EnemyButtons();
-                    // check alive
+                    // Hayatta mý kontrol et
                     BSM.battleStates = BattleStateMachine.PerformAction.CHECKALIVE;
                 }
                 break;
@@ -132,25 +135,25 @@ public class EnemyStateMachine : MonoBehaviour
         }
         actionStarted = true;
 
-        // animate the enemy near the hero to attack
+        // Düþman karakteri kahraman karakterin yanýna doðru ilerlet veya animasyon oynat
         Vector3 heroPosition = new Vector3(HeroToAttack.transform.position.x + 1.5f, HeroToAttack.transform.position.y, HeroToAttack.transform.position.z);
         while (MoveTowardsEnemy(heroPosition)) { yield return null; }
 
-        // wait a bit
+        // Biraz bekle
         yield return new WaitForSeconds(0.5f);
-        // do damage
+        // Hasar ver
         DoDamage();
-        // animate back to start position
+        // Baþlangýç pozisyonuna geri dön veya animasyon oynatmayý durdur
         Vector3 firstPosition = startposition;
         while (MoveTowardsStart(firstPosition)) { yield return null; }
 
-        // remove this performer from the list in BSM
+        // Bu performeri BSM'deki listeden kaldýr
         BSM.PerformList.RemoveAt(0);
         // reset BSM -> WAIT
         BSM.battleStates = BattleStateMachine.PerformAction.WAIT;
-        // end coroutine
+        // Coroutine'yi durdur
         actionStarted = false;
-        // reset this enemy state
+        // Düþman durumunu sýfýrla
         cur_cooldown = 0f;
         currentState = TurnState.PROCESSING;
     }

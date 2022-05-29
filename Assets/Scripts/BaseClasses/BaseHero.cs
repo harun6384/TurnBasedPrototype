@@ -5,6 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class BaseHero : BaseClass
 {
+    // Baseclassdan özellikleri alýp ek olarak stat deðerleri oluþturur -- mevcut oyunda etkisi olmayacak
+
     public int stamina;
     public int intellect;
     public int dexterity;

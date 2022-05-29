@@ -18,7 +18,7 @@ public class HeroStateMachine : MonoBehaviour
     }
 
     public TurnState currentState;
-    // for the progress bar
+    // Ýlerleme çubuðu
     private float cur_cooldown = 0f;
     private float max_cooldown = 5f;
     private Image ProgressBar;
@@ -28,18 +28,18 @@ public class HeroStateMachine : MonoBehaviour
     private bool actionStarted = false;
     private Vector3 startPosition;
     private float animSpeed = 10f;
-    // Dead
+    // Hayatta
     private bool alive = true;
-    // Hero panel
+    // Kahraman paneli
     private HeroPanelStats stats;
     public GameObject HeroPanel;
     private Transform HeroPanelSpacer;
 
     void Start()
     {
-        //find spacer
+        // Spaceri bul
         HeroPanelSpacer = GameObject.Find("BattleCanvas").transform.Find("HeroPanel").transform.Find("HeroPanelSpacer");
-        // create panel, fill in info
+        // Panel oluþtur ve içini doldur
         CreateHeroPanel();
         
         startPosition = transform.position;
@@ -47,7 +47,6 @@ public class HeroStateMachine : MonoBehaviour
         Selector.SetActive(false);
         currentState = TurnState.PROCESSING;
         BSM = GameObject.Find("BattleManager").GetComponent<BattleStateMachine>();
-        
     }
 
     
@@ -75,41 +74,44 @@ public class HeroStateMachine : MonoBehaviour
                 }
                 else
                 {
-                    // change tag
+                    // Tagý deðiþtir
                     this.gameObject.tag = "DeadHero";
-                    // not attackable by enemy
+                    // Düþmanlar tarafýndan saldýrýlamaz
                     BSM.HerosInBattle.Remove(this.gameObject);
-                    // not managable
+                    // Oyuncu tarafýndan kontrol edilemez
                     BSM.HerosToManage.Remove(this.gameObject);
-                    // deactivate selector
+                    // Selektörü devre dýþý býrak
                     Selector.SetActive(false);
-                    // reset gui
+                    // GUI'ý sýfýrla
                     BSM.AttackPanel.SetActive(false);
                     BSM.EnemySelectPanel.SetActive(false);
-                    // remove item from performlist
+                    // Nesneyi performlist'ten kaldýr
                     if (BSM.HerosInBattle.Count > 0)
                     {
                         for (int i = 0; i < BSM.PerformList.Count; i++)
                         {
-                            if (BSM.PerformList[i].AttackersGameObject == this.gameObject)
+                            if (i != 0)
                             {
-                                BSM.PerformList.Remove(BSM.PerformList[i]);
-                            }
-                            if (BSM.PerformList[i].AttackersTarget == this.gameObject)
-                            {
-                                BSM.PerformList[i].AttackersTarget = BSM.HerosInBattle[Random.Range(0, BSM.HerosInBattle.Count)];
+                                if (BSM.PerformList[i].AttackersGameObject == this.gameObject)
+                                {
+                                    BSM.PerformList.Remove(BSM.PerformList[i]);
+                                }
+                                if (BSM.PerformList[i].AttackersTarget == this.gameObject)
+                                {
+                                    BSM.PerformList[i].AttackersTarget = BSM.HerosInBattle[Random.Range(0, BSM.HerosInBattle.Count)];
+                                }
                             }
                         }
                     }
                     
-                    // change color / play animation
+                    // Rengi deðiþtir veya ölüm animasyonu oynat
                     this.gameObject.GetComponent<MeshRenderer>().material.color = new Color32(105, 105, 105, 255);
-                    // reset hero input
+                    // Kahraman inputlarýný sýfýrla
                     BSM.battleStates = BattleStateMachine.PerformAction.CHECKALIVE;
                     alive = false;
-                    // reset enemy buttons
+                    // Düþman butonlarýný sýfýrla
                     BSM.EnemyButtons();
-                    // check alive
+                    // Hayatta mý kontrol et
                     BSM.battleStates = BattleStateMachine.PerformAction.CHECKALIVE;
                 }
                 break;
@@ -123,7 +125,6 @@ public class HeroStateMachine : MonoBehaviour
         if (cur_cooldown >= max_cooldown)
         {
             currentState = TurnState.ADDTOLIST;
-
         }
     }
 
@@ -135,25 +136,25 @@ public class HeroStateMachine : MonoBehaviour
         }
         actionStarted = true;
 
-        // animate the enemy near the hero to attack
+        // Kahramaný düþmanýn yakýnýna doðru ilerlet veya saldýrý animasyonu oynat
         Vector3 enemyPosition = new Vector3(EnemyToAttack.transform.position.x - 1.5f, EnemyToAttack.transform.position.y, EnemyToAttack.transform.position.z);
         while (MoveTowardsEnemy(enemyPosition)) { yield return null; }
 
-        // wait a bit
+        // Biraz bekle
         yield return new WaitForSeconds(0.5f);
-        // do damage
+        // Hasar ver
         DoDamage();
-        // animate back to start position
+        // Baþlangýç pozisyonuna geri dön veya animasyonu durdur.
         Vector3 firstPosition = startPosition;
         while (MoveTowardsStart(firstPosition)) { yield return null; }
 
-        // remove this performer from the list in BSM
+        // Bu performeri BSM'deki listeden kaldýr
         BSM.PerformList.RemoveAt(0);
         // reset BSM -> WAIT
         if (BSM.battleStates != BattleStateMachine.PerformAction.WIN && BSM.battleStates != BattleStateMachine.PerformAction.LOSE)
         {
             BSM.battleStates = BattleStateMachine.PerformAction.WAIT;
-            // reset this enemy state
+            // Kahraman durumunu sýfýrla
             cur_cooldown = 0f;
             currentState = TurnState.PROCESSING;
         }
@@ -161,7 +162,7 @@ public class HeroStateMachine : MonoBehaviour
         {
             currentState = TurnState.PROCESSING;
         }
-        // end coroutine
+        // Coroutine'yi durdur
         actionStarted = false;
     }
 
@@ -184,14 +185,14 @@ public class HeroStateMachine : MonoBehaviour
         }
         UpdateHeroPanel();
     }
-    // do damage
+    // Hasar hesaplamasý
     void DoDamage()
     {
         float calc_damage = hero.curATK + BSM.PerformList[0].choosenAttack.attackDamage;
         EnemyToAttack.GetComponent<EnemyStateMachine>().TakeDamage(calc_damage);
     }
 
-    // create a hero panel
+    // Kahraman paneli oluþtur
     void CreateHeroPanel()
     {
         HeroPanel = Instantiate(HeroPanel) as GameObject;
@@ -203,7 +204,7 @@ public class HeroStateMachine : MonoBehaviour
         ProgressBar = stats.ProgressBar;
         HeroPanel.transform.SetParent(HeroPanelSpacer, false);
     }
-    // update stats on damage / heal
+    // Paneli hasar alma veya iyileþme durumunda güncelle
     void UpdateHeroPanel()
     {
         stats.HeroHP.text = "HP: " + hero.curHp;

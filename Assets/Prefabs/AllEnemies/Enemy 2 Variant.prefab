@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6443691791688703309, guid: 83450d36b93193144a456805b34f5297, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6744940203706388048, guid: 83450d36b93193144a456805b34f5297, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -103,5 +107,21 @@ PrefabInstance:
       propertyPath: enemy.attacks.Array.data[0]
       value: 
       objectReference: {fileID: 8146457525032181021, guid: cbc5870368a603a4299450b8ebe18f99, type: 3}
+    - target: {fileID: 7923626781433882731, guid: 83450d36b93193144a456805b34f5297, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.38268325
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923626781433882731, guid: 83450d36b93193144a456805b34f5297, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.9238796
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923626781433882731, guid: 83450d36b93193144a456805b34f5297, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7923626781433882731, guid: 83450d36b93193144a456805b34f5297, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 225
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 83450d36b93193144a456805b34f5297, type: 3}
